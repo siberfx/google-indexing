@@ -31,7 +31,10 @@ final class SearchConsoleSitemapEngine
     {
         $site = (string) ($this->config['google']['site_url'] ?: rtrim((string) config('app.url'), '/').'/');
 
+        // The endpoint takes no body. Laravel's `put()` would send a JSON `[]`, which Google rejects
+        // with "Invalid JSON payload received. Unknown name "": Root element must be a message".
         $response = Http::withToken($this->tokens->token([self::SCOPE]))
+            ->withBody('', 'application/x-www-form-urlencoded')
             ->timeout((int) ($this->config['http']['timeout'] ?? 15))
             ->put(sprintf(
                 '%s/%s/sitemaps/%s',

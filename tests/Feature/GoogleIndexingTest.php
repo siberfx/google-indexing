@@ -86,6 +86,8 @@ it('filters sitemap urls by lastmod and submits the sitemap to search console', 
     Http::assertSent(fn (Request $r) => str_contains($r->url(), 'indexnow')
         && $r['urlList'] === ['https://example.com/new', 'https://example.com/unknown']);
     Http::assertSent(fn (Request $r) => $r->method() === 'PUT' && str_contains($r->url(), 'sitemaps/https%3A%2F%2Fexample.com%2Fsitemap.xml'));
+    // Google rejects a JSON body on this endpoint, so the request must carry none.
+    Http::assertSent(fn (Request $r) => $r->method() === 'PUT' && $r->body() === '' && ! $r->hasHeader('Content-Type', 'application/json'));
 
     expect(collect($results)->pluck('engine')->all())->toBe(['google', 'indexnow', 'google-sitemap']);
 });

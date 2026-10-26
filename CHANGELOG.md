@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.2
+
+- Fix: the Search Console sitemap submission sent a JSON `[]` body, which Google rejects (`Invalid JSON payload received. Unknown name "": Root element must be a message`). It now sends no body.
+
 ## 1.0.1
 
 - Fix: an unusable `private_key` now throws `GoogleIndexingException` instead of a PHP warning.
