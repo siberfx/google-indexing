@@ -1,5 +1,12 @@
 # siberfx/google-indexing
 
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/siberfx/google-indexing.svg?style=flat-square)](https://packagist.org/packages/siberfx/google-indexing)
+[![Tests](https://img.shields.io/github/actions/workflow/status/siberfx/google-indexing/tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/siberfx/google-indexing/actions/workflows/tests.yml)
+[![Total Downloads](https://img.shields.io/packagist/dt/siberfx/google-indexing.svg?style=flat-square)](https://packagist.org/packages/siberfx/google-indexing)
+[![PHP Version](https://img.shields.io/packagist/php-v/siberfx/google-indexing.svg?style=flat-square)](https://packagist.org/packages/siberfx/google-indexing)
+[![Laravel](https://img.shields.io/badge/laravel-12.x%20|%2013.x-FF2D20?style=flat-square&logo=laravel&logoColor=white)](https://laravel.com)
+[![License](https://img.shields.io/packagist/l/siberfx/google-indexing.svg?style=flat-square)](LICENSE)
+
 Tell search engines about your pages the moment they change.
 
 - **Google** — Indexing API (`URL_UPDATED` / `URL_DELETED`) and sitemap submission through the Search Console API.

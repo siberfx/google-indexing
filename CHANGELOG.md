@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.1
+
+- Fix: an unusable `private_key` now throws `GoogleIndexingException` instead of a PHP warning.
+- Tests for the token provider, `SubmissionResult` and the `indexing:publish|status|install` commands; GitHub Actions matrix (PHP 8.4/8.5 × Laravel 12/13).
+
 ## 1.0.0
 
 - Google Indexing API engine (`URL_UPDATED` / `URL_DELETED`, concurrent, per-URL errors, metadata lookup).

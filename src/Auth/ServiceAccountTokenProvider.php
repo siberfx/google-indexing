@@ -87,7 +87,8 @@ final class ServiceAccountTokenProvider
 
         $signature = '';
 
-        if (! openssl_sign(implode('.', $segments), $signature, $creds['private_key'], OPENSSL_ALGO_SHA256)) {
+        // openssl_sign() warns on an unusable key; we turn that into our own exception.
+        if (! @openssl_sign(implode('.', $segments), $signature, $creds['private_key'], OPENSSL_ALGO_SHA256)) {
             throw GoogleIndexingException::invalidCredentials('private_key could not be used for signing.');
         }
 
