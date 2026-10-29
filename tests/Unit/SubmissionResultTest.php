@@ -14,5 +14,5 @@ it('builds a skipped result and a summary', function () {
     $skipped = SubmissionResult::skipped('indexnow', 'Engine is not configured.');
 
     expect($skipped->successful())->toBeFalse()
-        ->and($skipped->summary())->toBe(['engine' => 'indexnow', 'accepted' => 0, 'failed' => 0, 'message' => 'Engine is not configured.']);
+        ->and($skipped->summary())->toBe(['engine' => 'indexnow', 'accepted' => 0, 'failed' => 0, 'deferred' => 0, 'message' => 'Engine is not configured.']);
 });

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Siberfx\GoogleIndexing\Engines\BingWebmasterEngine;
 use Siberfx\GoogleIndexing\Engines\GoogleIndexingApiEngine;
 use Siberfx\GoogleIndexing\Engines\IndexNowEngine;
 
@@ -25,6 +26,7 @@ return [
     'engines' => [
         'google' => GoogleIndexingApiEngine::class,
         'indexnow' => IndexNowEngine::class,
+        'bing' => BingWebmasterEngine::class,
     ],
 
     /*
@@ -45,7 +47,9 @@ return [
     'google' => [
         'credentials' => env('GOOGLE_INDEXING_CREDENTIALS'),
 
-        // Google's default quota is 200 publish requests per day.
+        // Google's default quota is 200 publish requests per day, counted across
+        // all runs and reset at midnight Pacific time. URLs over the limit are
+        // deferred to a later run instead of failing. 0 = no limit.
         'daily_limit' => (int) env('GOOGLE_INDEXING_DAILY_LIMIT', 200),
 
         // Concurrent requests per chunk.
@@ -78,6 +82,32 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Bing Webmaster Tools (optional — IndexNow already covers Bing)
+    |--------------------------------------------------------------------------
+    | Add 'bing' to GOOGLE_INDEXING_ENGINES to submit through the Webmaster API
+    | directly (per-request feedback). Key: Bing Webmaster Tools → Settings → API access.
+    */
+    'bing' => [
+        'key' => env('BING_WEBMASTER_API_KEY'),
+        'site_url' => env('BING_WEBMASTER_SITE_URL'), // defaults to APP_URL
+        'endpoint' => 'https://ssl.bing.com/webmaster/api.svc/json/SubmitUrlbatch',
+        'chunk_size' => 500,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Submission history (optional)
+    |--------------------------------------------------------------------------
+    | When enabled every engine result is stored in `table`. Publish and run the
+    | migration first: php artisan vendor:publish --tag=google-indexing-migrations
+    */
+    'history' => [
+        'enabled' => (bool) env('GOOGLE_INDEXING_HISTORY', false),
+        'table' => 'google_indexing_submissions',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Sitemap
     |--------------------------------------------------------------------------
     */
@@ -92,6 +122,12 @@ return [
         // Only submit URLs whose <lastmod> is newer than this ("1 day", "2 hours"...).
         // null = submit everything.
         'only_changed_within' => env('GOOGLE_INDEXING_ONLY_CHANGED_WITHIN'),
+
+        // Skip URLs already submitted that have not changed since (saves quota on
+        // the daily run). A URL is sent again after `resubmit_after`, or when its
+        // <lastmod> is newer than the last submission.
+        'dedupe' => (bool) env('GOOGLE_INDEXING_SITEMAP_DEDUPE', true),
+        'resubmit_after' => env('GOOGLE_INDEXING_RESUBMIT_AFTER', '30 days'),
 
         // Register `indexing:sitemap` in the scheduler automatically.
         'schedule' => [
@@ -115,6 +151,8 @@ return [
 
     'http' => [
         'timeout' => 15,
-        'user_agent' => 'siberfx-google-indexing/1.0',
+        'user_agent' => 'siberfx-google-indexing/1.1',
+        // Longest pause (seconds) honoured from a 429 Retry-After header.
+        'max_backoff' => 30,
     ],
 ];

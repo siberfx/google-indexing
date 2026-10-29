@@ -28,6 +28,11 @@ class GoogleIndexingException extends RuntimeException
         return new self("Sitemap [{$url}] could not be read: {$reason}");
     }
 
+    public static function requestFailed(string $message): self
+    {
+        return new self("Google API request failed: {$message}");
+    }
+
     public static function unknownEngine(string $name): self
     {
         return new self("Unknown indexing engine [{$name}]. Register it in config/google-indexing.php under 'engines'.");

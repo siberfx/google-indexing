@@ -33,6 +33,7 @@ final class SubmitUrlsJob implements ShouldBeUnique, ShouldQueue
         public readonly array $urls,
         public readonly UrlAction $action = UrlAction::Updated,
         public readonly ?array $only = null,
+        public readonly int $attempt = 1,
     ) {
         $queue = (array) config('google-indexing.queue');
 
@@ -53,20 +54,36 @@ final class SubmitUrlsJob implements ShouldBeUnique, ShouldQueue
 
     public function uniqueId(): string
     {
-        return sha1($this->action->value.'|'.implode('|', $this->urls).'|'.implode(',', $this->only ?? []));
+        // The attempt is part of the key: a retry of the same URLs must not be dropped while the first attempt still holds the lock.
+        return sha1($this->action->value.'|'.implode('|', $this->urls).'|'.implode(',', $this->only ?? []).'|'.$this->attempt);
     }
 
+    /**
+     * Only temporarily failed URLs are sent again, as a follow-up job with the
+     * next backoff delay. Accepted and permanently rejected URLs are never resent.
+     */
     public function handle(GoogleIndexing $indexing): void
     {
         $results = $indexing->submit($this->urls, $this->action, $this->only);
 
-        $attempted = array_filter($results, fn ($r) => $r->message === null);
+        $retry = array_values(array_unique(array_merge([], ...array_map(fn ($r) => $r->retryable, $results))));
 
-        // Retry only when every engine that actually ran rejected everything.
-        if ($attempted !== [] && array_filter($attempted, fn ($r) => $r->accepted !== []) === []) {
-            throw new RuntimeException('All indexing engines rejected the submission: '.json_encode(
-                array_map(fn ($r) => $r->failed, $attempted),
-            ));
+        if ($retry === []) {
+            return;
         }
+
+        if ($this->attempt < $this->tries) {
+            $delay = $this->backoff[min($this->attempt - 1, count($this->backoff) - 1)] ?? 30;
+
+            dispatch((new self($retry, $this->action, $this->only, $this->attempt + 1)))->delay(now()->addSeconds((int) $delay));
+
+            return;
+        }
+
+        throw new RuntimeException(sprintf(
+            'Indexing still failing after %d attempt(s) for %d URL(s).',
+            $this->attempt,
+            count($retry),
+        ));
     }
 }

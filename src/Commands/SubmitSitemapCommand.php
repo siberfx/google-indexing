@@ -51,7 +51,7 @@ final class SubmitSitemapCommand extends Command
             $this->components->info('Queued.');
         }
 
-        $this->table(['Engine', 'Accepted', 'Failed', 'Note'], array_map(
+        $this->table(['Engine', 'Accepted', 'Failed', 'Deferred', 'Note'], array_map(
             fn ($r) => array_values($r->summary()),
             $results,
         ));
