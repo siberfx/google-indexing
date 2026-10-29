@@ -15,7 +15,7 @@ Tell search engines about your pages the moment they change.
 - **Auto-injecting** — add one trait to an Eloquent model and it notifies engines on create / update / restore / delete. The IndexNow key file route and the scheduler entry register themselves.
 - **Queued, de-duplicated and retried.** No Google SDK needed — OAuth is done with `openssl` + Laravel's HTTP client.
 
-Requires PHP **8.4+** and Laravel **12 / 13**.
+Requires PHP **8.3+** (8.3, 8.4 and 8.5 are tested) and Laravel **12 / 13**.
 
 > **Heads-up about "pinging".** Google (2023) and Bing retired their `…/ping?sitemap=` URLs, so pinging them does nothing.
 > This package does what works today: it submits the *sitemap file* via the Search Console API, and the *individual URLs* via the Indexing API and IndexNow.

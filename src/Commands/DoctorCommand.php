@@ -51,7 +51,7 @@ final class DoctorCommand extends Command
 
     private function checkLocal(ServiceAccountTokenProvider $tokens): void
     {
-        $this->record('PHP >= 8.4', PHP_VERSION_ID >= 80400, PHP_VERSION);
+        $this->record('PHP >= 8.3', PHP_VERSION_ID >= 80300, PHP_VERSION);
         $this->record('ext-openssl', extension_loaded('openssl'), extension_loaded('openssl') ? 'loaded' : 'missing');
         $this->record('Package enabled', (bool) config('google-indexing.enabled'), (bool) config('google-indexing.enabled') ? 'yes' : 'GOOGLE_INDEXING_ENABLED is false');
 

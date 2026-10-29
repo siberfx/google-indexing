@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.1
+
+### Added
+
+- PHP 8.3 support: `composer.json` requires `^8.3` and the CI matrix tests 8.3, 8.4 and 8.5.
+
 ## 1.1.0
 
 ### Added
